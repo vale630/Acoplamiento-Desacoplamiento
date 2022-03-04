@@ -1,80 +1,120 @@
-var  iss, astronaut;
+var PLAY = 1;
+var END = 0;
+var gameState = PLAY;
 
+var yoshi,yoshi1,yoshi2,yoshi3,yoshi_running,yoshi_collided;
+var marioBros,marioBrosImage,invisibleGround,groundImage;
+var clouds,cloudsGroup,cloudsImage,invisibleGround;
 
- var gyms,gym, gym1, gym2,brush, brushing, bath, bath1, bath2, bathing;
- var eat, eat1,eat2, eating, move, move1, moving,drink, drink1, drink2, sleep,sleeping;
+var CoinCollection = 0;
+var StarCollection = 0;
 
- function preload(){
-  bg = loadImage ("iss.png");
-  sleep = loadAnimation ("sleep.png");
-  bath = loadAnimation ("bath1.png", "bath2.png")
-  brush = loadAnimation("brush.png");
-  gym = loadAnimation ("gym1.png", "gym2.png");
-  eat = loadAnimation ("eat1.png","eat2.png");
-  drink = loadAnimation ("drink1.png","drink2.png");
-  move = loadAnimation("move.png","move1.png");
-  }
+var balaImage, estrella, estrellaImage,fantasmaImage,moneda,monedasImage,monedas, moneda1,moneda2,monedasGroup;
+var obstacle,obstaclesGroup,obstacle1,obstacle2,obsta3le3,obstacle4,bala,fantasma;
+var newImage,start,startImg,gameOver,gameOverImg ,groundImage;
+var score; 
 
-function setup() {
-  createCanvas(800,400);
-  //createSprite(400, 200, 50, 50);
+//"La historia comienza con un dinosaurio escapando de un policia por destruir la ciudad"
 
-  astronaut = createSprite(300,230);
-  astronaut.addAnimation("sleeping", sleep);
-  astronaut.scale = 0.1;  
+function preload(){
+    yoshi_running = loadAnimation ("yoshi1.png","yoshi3.png");
+    yoshi_colllided = loadAnimation ("yoshi2.png")
+
+    marioBrosImage = loadImage ("marioBros.png");
+    cloudsImage = loadImage ("clouds.png");
+
+    obstacle1 = loadImage ("obstacle1.png")
+    obstacle2 = loadImage ("obstacle2.png")
+    obstacle3 = loadImage ("obstacle3.png")
+    obstacle4 = loadImage ("obstacle4.png")
+
+    balaImage = loadImage ("bala.png");
+    estrellaImage = loadImage ("estrella.png");
+    fantasmaImage = loadImage ("fantasma.png");
+    monedasImage = loadImage ("moneda1.png")
+    monedasImage = loadImage ("moneda2.png");
+
+    gameOverImg = loadImage ("gameOver.png");
+    startImg = loadImage ("start.png");
 }
 
+function setup() {
+    createCanvas (windowWidth,windowHeight);
+
+    marioBros = createSprite(width /2);
+    marioBros.addImage("marioBros",marioBrosImage); 
+    marioBros.velocityX = -8;
+ 
+    yoshi = createSprite(100,300,30,80);
+    yoshi.addAnimation("running", yoshi_running);
+    yoshi.addAnimation ("collided",yoshi_collided)
+    yoshi.scale = 0.1;
+    
+   gameOver = createSprite (840,180,20,80);
+   gameOver.addImage("gameOver",gameOverImg);
+   gameOver.scale = 0.3;
+   
+   start = createSprite (850,310,20,80);
+   start.addAnimation("start",startImg);
+   start.scale = 0.1
+
+   obstaclesGroup = createGroup();
+    cloudsGroup = createGroup();
+    monedasGroup = createGroup();
+ 
+    yoshi.setCollider("circle",0,0,200);
+    yoshi.debug = true
+   score = 0
+}
+
+
 function draw() {
-  background(bg);  
-  drawSprites();
-
-  
-  textSize(25);
-  text("Instrucciones:",20,30);
-  textSize (18);
-  text("Flecha hacia Arriba = Cepillarse", 20,60);
-  text("Flecha hacia Abajo = Ejercitarse",20,75);
-  text("Flecha hacia la Izquierda =Bañarse",20,90);
-  text("Flecha hacia la Derecha = Comer",20,106);   
-  text("Tecla m = Moverse",20,120);
-
-  if (keyDown("UP_ARROW")){
-    astronaut.addAnimation("brushing", brush);
-    astronaut.changeAnimation("brushing");
-    astronaut.y = 260;
-    astronaut.velocityX = 0;
-    astronaut.velocityY = 0;
-  }
-  
-  if (keyDown("DOWN_ARROW")){
-    astronaut.addAnimation("gyms", gym);
-    astronaut.changeAnimation("gyms");
-    astronaut.y = 260;
-    astronaut.velocityX = 0;
-    astronaut.velocityY = 0;
-  }
-  
-  if (keyDown("LEFT_ARROW")){
-    astronaut.addAnimation("bathing", bath);
-    astronaut.changeAnimation("bathing");
-    astronaut.y = 260;
-    astronaut.velocityX = 0;
-    astronaut.velocityY = 0;
-  }
-  
-  if (keyDown("RIGHT_ARROW")){
-    astronaut.addAnimation("eating", eat);
-    astronaut.changeAnimation("eating");
-    astronaut.y = 260;
-    astronaut.velocityX = 0;
-    astronaut.velocityY = 0;
-  }
-
-  if (keyDown("Botón m")){
-    astronaut.addAnimation("moving", move);
-    astronaut.changeAnimation("moving");
-    astronaut.y = 260;
-    astronaut.velocityX = 0; 
-    astronaut.velocityY = 0;
-  }
+    textSize(20);
+    text("Puntuación : "+ score,1300,60)
+    
+    
+    if(gameState === PLAY){
+ 
+      //mover el fondo
+      marioBros.velocityX = -6;
+      //puntuación
+     score = score + Math.round(frameCount/60);
+ 
+       if (marioBros.x < 0){
+         marioBros.x = marioBros.width/8;
+       }
+ 
+       //hacer que yoshi salte al presionar la barra espaciadora
+       if(keyDown("space")&& yoshi.y >= 100) {
+         yoshi.velocityY = -13;
+       }
+       
+      yoshi.velocityY = yoshi.velocityY + 0.8
+ 
+      gameOver.visible = false;
+      start.visible = false;
+ 
+      edges= createEdgeSprites();
+     yoshi.collide(edges);
+     
+      if(moneda1.isTouching(yoshi)) {
+         moneda1.destroyEach();
+         CoinCollection=CoinCollection+50;
+       }
+   
+       if(moneda2.isTouching(yoshi)) {
+         moneda2.destroyEach();
+        coinCollection=coinCollection+50;
+       }
+     if(estrella.isTouching(yoshi)) {
+         estrella.destroyEach();
+        coinCollection=coinCollection+100;
+   
+        if(obstaclesGroup.isTouching(yoshi)){
+         gameState = END;
+      }
+ 
+    
+ }
+    }
 }
